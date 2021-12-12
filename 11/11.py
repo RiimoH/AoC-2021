@@ -4,48 +4,10 @@ from colorama import init, Fore
 def read_file(file):
     with open(file) as fp:
         inp = fp.read().split('\n')
-<<<<<<< HEAD
-        inp = [[int(char) for char in row] for row in inp]
-        print(inp)
-    return inp
-
-def part_one(inp):
-
-    total_flashes = 0
-
-
-    while True:
-        # step one: increase all values
-        for row in inp:
-            for octopuss in row:
-                octopuss += 1
-
-        # step two: flash all octopusses with a value higher than 9
-        flashed = True
-        
-        while flashed:
-            flashed = False
-            for row, line in enumerate(inp):
-                for col, octopuss in enumerate(line):
-                    if octopuss > 9:
-                        total_flashes += 1
-                        octopuss -= octopuss
-                        for dr, dc in ((1,0), (0,1), (0,-1), (-1,0)):
-                            cr = dr+row
-                            cc = dc+col
-                            if 0 <= cr < 10 and 0 <= cc < 10:
-                                if inp[cr][cc] > 0:
-                                    inp[cr][cc] += 1
-                                    flashed = True
-
-        yield inp
-
-=======
         grid = [[int(c) for c in row] for row in inp]
     return grid
 
 def part_one(grid, steps):
->>>>>>> 94549a6b60b4f2965caa773643ef16b37254a41d
 
     total_flashes = 0
 
@@ -157,19 +119,9 @@ if __name__ == "__main__":
     inp = read_file("./input.txt")
     test = read_file("./test.txt")
 
-<<<<<<< HEAD
-    p1 = part_one(test)
-    for _ in range(2):
-        next(p1)
-
-    
-    for row in test:
-        print(''.join(map(str, row)))
-=======
     # print("Part One TEST: ", part_one(test, 100) == 1656)
     # print("Part One: ", part_one(inp, 100))
     
     print("Part Two TEST: ", part_two(test) == 195)
     print("Part Two: ", part_two(inp))
->>>>>>> 94549a6b60b4f2965caa773643ef16b37254a41d
         

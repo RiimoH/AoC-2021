@@ -3,6 +3,7 @@ def read_file(txt):
         inp = fp.read().split("\n")
     return inp
 
+
 def parse(line):
     depth = []
     values = []
@@ -21,6 +22,7 @@ def parse(line):
 
     return depth, values
 
+
 def explode(depth, values):
     if 4 in depth:
         idx = depth.index(4)
@@ -37,6 +39,7 @@ def explode(depth, values):
         return True, depth, values
     else:
         return False, depth, values
+
 
 def split(depth, values):
     for idx, val in enumerate(values):
@@ -59,6 +62,7 @@ def add(depth1, value1, depth2, value2):
     value = value1 + value2
     return depth, value
 
+
 def reduce(depth, values):
     b = True
     while b:
@@ -68,29 +72,31 @@ def reduce(depth, values):
 
     return depth, values
 
+
 def magnitude(depth, values):
-    
+
     pass
+
 
 if __name__ == "__main__":
     tests = ["""[[[[4,3],4],4],[7,[[8,4],9]]]
 [1,1]""",
-"""[1,1]
+             """[1,1]
 [2,2]
 [3,3]
 [4,4]""",
-"""[1,1]
+             """[1,1]
 [2,2]
 [3,3]
 [4,4]
 [5,5]""",
-"""[1,1]
+             """[1,1]
 [2,2]
 [3,3]
 [4,4]
 [5,5]
 [6,6]""",
-"""[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]
+             """[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]
 [7,[[[3,7],[4,3]],[[6,3],[8,8]]]]
 [[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]
 [[[[2,4],7],[6,[0,5]]],[[[6,8],[2,8]],[[2,1],[4,5]]]]
@@ -99,7 +105,7 @@ if __name__ == "__main__":
 [2,9]
 [1,[[[9,3],9],[[9,0],[0,7]]]]
 [[[5,[7,4]],7],1]
-[[[[4,2],2],6],[8,7]]""",]
+[[[[4,2],2],6],[8,7]]""", ]
 
     for tn, test in enumerate(tests):
         print("\n\n", tn)

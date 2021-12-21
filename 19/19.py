@@ -29,29 +29,43 @@ class Scanner():
         self.transformer = self.transformer_functions[0]
         self._original_beacons = set(scanned_beacons)
         self.beacons = set(scanned_beacons)
-        self.distances = self._generate_distances(scanned_beacons)
+        self.distances = self._generate_distances()
 
     def _generate_distances(self):
         beacons = list(self.beacons)
         distances = {}
         for idx, (x1, y1, z1) in enumerate(beacons):
             for (x2, y2, z2) in beacons[idx:]:
-                dist = round(((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)**0.5, 12)
-                distances[dist] = ((x1, y1, z1), (x2, y2, z2))
+                if (x1, y1, z1) != (x2, y2, z2):
+                    dist = round(((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)**0.5, 12)
+                    distances[dist] = ((x1, y1, z1), (x2, y2, z2))
 
         return distances
 
     def find_transformation(self, matched_beacons):
         for transformer in self.transformer_functions:
             for phaser in self.phase_functions:
-                for origin, target in matched_beacons:
-                    if phaser(transformer(origin)) != target:
+
+                origin = list(matched_beacons.keys())[0]
+                target = phaser(transformer(matched_beacons[origin]))
+
+                self.translation = (origin[0] - target[0], origin[1] - \
+                    target[1], origin[2] - target[2])
+
+                print(origin, target, self.translation)
+
+                for origin, target in matched_beacons.items():
+                    if self.translate(phaser(transformer(target))) != origin:
                         break
                 else:
                     self.transformer = transformer
                     self.phaser = phaser
                     return True
             return False
+
+    def translate(self, node):
+        tx, ty, tz = self.translation
+        return (node[0]+tx, node[1] + ty, node[2] + tz)
 
     def transform_all(self):
         self.beacons = set(map(self.phaser, map(
@@ -87,18 +101,19 @@ def find_matches(distances1, distances2):
     for i, (t1, m1) in enumerate(matches):
         t1_1, t1_2 = t1
 
-        for (t2, m2) in matches[i:]:
-            if t1_1 in matched_beacons:
-                pass
-            else:
-                if t1_1 in t2:
-                    matched_beacons[t1_1] = set(m1).intersection(set(m2)).pop()
-                    matched_beacons[t1_2] = set(
-                        m1).remove(matched_beacons[t1_1])
+        for (t2, m2) in matches[i+1:]:
 
-                    t2_2 = t2.remove(t1_1).pop()
-                    matched_beacons[t2_2] = set(
-                        m2).remove(matched_beacons[t1_1])
+            if t1_1 in t2:
+                matched_beacons[t1_1] = set(m1).intersection(set(m2)).pop()
+                res = set(m1)
+                res.remove(matched_beacons[t1_1])
+                matched_beacons[t1_2] = res.pop()
+
+                t2_2 = t2[0] if t2[0] != t1_1 else t2[1]
+
+                res = set(m2)
+                res.remove(matched_beacons[t1_1])
+                matched_beacons[t2_2] = res.pop()
 
     return matched_beacons
 
@@ -109,31 +124,35 @@ if __name__ == "__main__":
     st = time()
     original_reference = Scanner(0, scanners[0])
 
-    scanner_nums = {k for k in scanners.keys() if k != 0}
+    scanner_nums = [k for k in scanners.keys() if k != 0]
 
     while scanner_nums:
-        print("Trying to fit {scanner_num}")
-        scanner_num = scanner_num.pop(0)
+        scanner_num = scanner_nums.pop(0)
+        print(f"Trying to fit {scanner_num}")
 
         # Generate all distances
         # dict -> key: distance rounded to 12 after comma, value: ((x1,y1,z1)(x2,y2,z2))
-        scanner = Scanner(scanners[scanner_num])
+        scanner = Scanner(scanner_num, scanners[scanner_num])
 
         # Find 2 distances that match -> allows to assign 3 nodes
-        matches = find_matches(original_reference, scanner)
+        matches = find_matches(original_reference.distances, scanner.distances)
 
         # If not match was possible, visit this scanner later again
-        if not matches:
+        if len(matches)<3:
             scanner_nums.append(scanner_num)
             continue
 
         # Try to find a transformation that matches all the nodes
         # Transform all nodes to new reference
-        scanner.find_transformation()
+        scanner.find_transformation(matches)
         scanner.transform_all()
+
+        print(scanner.translation)
 
         # Add all transformed beacons to frame of reference
         original_reference.add_beacons(scanner.beacons)
 
     print(f"Finished in: {time()-st:.5f} s")
     print("Part One:", len(original_reference.beacons))
+    for b in sorted(list(original_reference.beacons)):
+        print(b)

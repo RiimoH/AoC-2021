@@ -27,7 +27,7 @@ def enhance(pixels, algo):
             elif (min_height <= r + dr <= max_height and min_width <= c + dc <= max_width):
                 bin += '0'
             else:
-                bin += str(filler)
+                bin += str(filler) 
         idx = int(bin, 2)
 
         if algo[idx]:
